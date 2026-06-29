@@ -19,6 +19,7 @@ import second from "../assets/img25/second.webp";
 import third from "../assets/img25/third.webp";
 const Toss = () => {
   const [sub, setSub] = useState([]);
+  const [filteredSubs, setFilteredSubs] = useState([]);
   // const [] = useState(false);
   const [is, setIs] = useState(false);
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const Toss = () => {
   console.log(id.id, allCandidates);
   useEffect(() => {
     checkUser();
-  }, [allCandidates]);
+  }, [allCandidates, subs]);
 
   const checkUser = async () => {
     setIsPopup(false);
@@ -41,6 +42,13 @@ const Toss = () => {
       if (user.subject) {
         navigate(`/img/${id.id}`);
       } else {
+        // Filter subs to only show surahs that include this candidate's rawi
+        const candidateRaviId = user.rawiId || user.raviId;
+        const candidateFilteredSubs = subs.filter((item) => {
+          if (!candidateRaviId) return true; // fallback: show all if no raviId
+          return Array.isArray(item.rawis) && item.rawis.some((r) => r.id === candidateRaviId);
+        });
+        setFilteredSubs(candidateFilteredSubs);
         setIs(true);
       }
     }
@@ -107,7 +115,7 @@ const Toss = () => {
                 {/* <img src={quran1} className="w-90" alt="" /> */}
 
                 <div className="flex flex-wrap  gap-10">
-                  {subs.map((item, index) => {
+                  {filteredSubs.map((item, index) => {
                     return (
                       <>
                         {!item.locked ? (
